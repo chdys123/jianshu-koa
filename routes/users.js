@@ -17,5 +17,8 @@ router.post("/verify",userCtl.verify)
 // 修改密码
 router.post("/update/pwd",userCtl.updatePwd)
 
+// 修改用户资料
+router.post("/update/personal",userCtl.updatePersonal)
+
 module.exports = router
 
