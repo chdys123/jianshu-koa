@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken")
 // 用户登录
 const login = async (ctx) => {
     let { username, pwd } = ctx.request.body
+    console.log("收到了登录请求：",username,pwd)
     await User.findOne({ username, pwd }).then(res => {
         if (res) {
             // 生成token
@@ -18,7 +19,8 @@ const login = async (ctx) => {
             ctx.body = {
                 code: 200,
                 msg: "登录成功",
-                token
+                token,
+                user:res
             }
         } else {
             ctx.body = {
@@ -146,6 +148,8 @@ const updatePwd = async ctx => {
 // 修改用户个人资料
 const updatePersonal = async ctx => {
     let user = ctx.request.body
+    console.log("修改用户信息：")
+    console.log(user)
 
     await User.updateOne(
         {_id:user._id},
@@ -160,7 +164,7 @@ const updatePersonal = async ctx => {
         if(res.modifiedCount>0){
             ctx.body={
                 code:200,
-                msg:"修改资料成功"
+                msg:"修改资料成功",
             }
         }else{
             ctx.body={
