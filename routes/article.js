@@ -2,7 +2,8 @@ const {
     add,
     findAll,
     findOne,
-    update
+    update,
+    del
 } = require("../controller/article")
 
 const router = require('koa-router')()
@@ -20,6 +21,9 @@ router.get("/findOne", findOne)
 
 // 修改文章
 router.post("/update",update)
+
+// 删除文章
+router.post("/del",del)
 
 
 

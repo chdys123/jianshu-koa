@@ -26,11 +26,10 @@ const articleSchema = new mongoose.Schema({
     },
 
     // 作者
-    author:String
+    author:String,
+    // 作者_id
+    authorId:String
 
-
-
-   
 
 })
 const Article=mongoose.model("articles",articleSchema)
