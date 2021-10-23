@@ -118,9 +118,9 @@ const verify = async (ctx) => {
 
 // 修改用户密码
 const updatePwd = async ctx => {
-    let { username, pwd } = ctx.request.body
+    let { _id, pwd } = ctx.request.body
     await User.updateOne(
-        { username },
+        { _id },
         { pwd }
     ).then(res => {
         if (res.modifiedCount > 0) {
@@ -139,7 +139,8 @@ const updatePwd = async ctx => {
     }).catch(err => {
         ctx.body = {
             code: 500,
-            msg: "修改密码异常"
+            msg: "修改密码异常",
+            err
         }
     })
 }
@@ -154,6 +155,7 @@ const updatePersonal = async ctx => {
     await User.updateOne(
         {_id:user._id},
         {
+            username:user.username,
             avatar:user.avatar,
             sex:user.sex,
             desc:user.desc,
@@ -165,11 +167,13 @@ const updatePersonal = async ctx => {
             ctx.body={
                 code:200,
                 msg:"修改资料成功",
+                res
             }
         }else{
             ctx.body={
                 code:300,
-                msg:"修改资料失败"
+                msg:"修改资料失败",
+                res
             }
         }
     }).catch(err=>{

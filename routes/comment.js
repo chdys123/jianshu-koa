@@ -16,6 +16,6 @@ router.post("/add",add)
 router.get("/web/find",findById)
 
 // 后台查询评论
-router.get("")
+router.get("/admin/find",findByAuthor)
 
 module.exports=router
