@@ -1,6 +1,7 @@
 const {
     add,
     findAll,
+    find,
     findOne,
     update,
     del
@@ -15,6 +16,9 @@ router.post("/add", add)
 
 // 查询所有文章 分页
 router.get("/findAll", findAll)
+
+// 查询文章 按条件
+router.get("/find",find)
 
 // 查询单个文章
 router.get("/findOne", findOne)

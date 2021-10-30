@@ -2,13 +2,12 @@ const mongoose = require("mongoose")
 
 // 文章模型对象
 const articleSchema = new mongoose.Schema({
-    id:Number,
+    
     title:String,
     createTime:String,
     // 文章内容
     content:String,
-    // 文章来源
-    stemfrom:String,
+ 
     // 阅读量
     read:{
         type:Number,
@@ -28,9 +27,18 @@ const articleSchema = new mongoose.Schema({
     // 作者
     author:String,
     // 作者_id
-    authorId:String
-
-
+    authorId:String,
+    // 封面类型
+    coverType:String,
+    // 封面图片
+    coverImg:Array,
+    // 文章状态  审核中  未通过 已发布
+    statu:String,
+    // 文章权限
+    access:{
+        type:String,
+        default:"全部可见"
+    }
 })
 const Article=mongoose.model("articles",articleSchema)
 

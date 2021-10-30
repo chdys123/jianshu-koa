@@ -1,5 +1,4 @@
 const User = require("../models/user")
-const crud = require("./crudUtil/index")
 const jwt = require("jsonwebtoken")
 
 
@@ -81,6 +80,7 @@ const reg = async (ctx) => {
 
 // 验证用户登录
 const verify = async (ctx) => {
+    console.log(ctx)
     let token = ctx.header.authorization
     token = token.replace("Bearer ", "")
     try {

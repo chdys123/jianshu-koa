@@ -2,7 +2,10 @@ const Article = require("../models/article")
 
 // 添加文章
 const add = async ctx => {
+    
     let article = ctx.request.body
+
+
     await Article.create(article).then(res => {
         if (res) {
             ctx.body = {
@@ -93,6 +96,27 @@ const findAll = async ctx => {
 
 }
 
+// 按条件查询文章
+const find=async ctx=>{
+    let {authorId} = ctx.query
+    console.log(authorId)
+    await Article.find({authorId}).then(res=>{
+        ctx.body={
+            code:200,
+            msg:"查询成功",
+            res
+        }
+    }).catch(err=>{
+        ctx.body={
+            code:500,
+            msg:"查询时出现异常",
+            err
+        }
+    })
+}
+
+
+
 // 查询单个文章
 const findOne = async ctx => {
     let { id } = ctx.query
@@ -131,7 +155,6 @@ const findOne = async ctx => {
 // 修改文章   需要获取当前jwt的用户id和 authorId比较
 const update = async ctx => {
     let article = ctx.request.body
-    console.log(article)
     await Article.updateOne(
         {
             id: article.id,
@@ -193,6 +216,7 @@ const del = async ctx => {
 module.exports = {
     add,
     findAll,
+    find,
     findOne,
     update,
     del
