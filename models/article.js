@@ -32,13 +32,9 @@ const articleSchema = new mongoose.Schema({
     coverType:String,
     // 封面图片
     coverImg:Array,
-    // 文章状态  审核中  未通过 已发布
+    // 文章状态  审核中  未通过 已发布 仅我可见
     statu:String,
-    // 文章权限
-    access:{
-        type:String,
-        default:"全部可见"
-    }
+  
 })
 const Article=mongoose.model("articles",articleSchema)
 

@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken")
 // 用户登录
 const login = async (ctx) => {
     let { username, pwd } = ctx.request.body
-    console.log("收到了登录请求：",username,pwd)
     await User.findOne({ username, pwd }).then(res => {
         if (res) {
             // 生成token
@@ -80,12 +79,10 @@ const reg = async (ctx) => {
 
 // 验证用户登录
 const verify = async (ctx) => {
-    console.log(ctx)
     let token = ctx.header.authorization
     token = token.replace("Bearer ", "")
     try {
         let result = jwt.verify(token, "jianshu-server-jwt")
-        console.log("result:", result)
         await User.findOne({ _id: result._id }).then(res => {
             if (res) {
                 ctx.body = {
@@ -149,8 +146,7 @@ const updatePwd = async ctx => {
 // 修改用户个人资料
 const updatePersonal = async ctx => {
     let user = ctx.request.body
-    console.log("修改用户信息：")
-    console.log(user)
+    
 
     await User.updateOne(
         {_id:user._id},

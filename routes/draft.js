@@ -2,7 +2,8 @@ const {
     add,
     update,
     del,
-    find
+    find,
+    findOne
    
 } = require("../controller/draft")
 
@@ -20,6 +21,9 @@ router.post("/del",del)
 
 // 查询草稿按条件
 router.get("/find",find)
+
+// 查询单个草稿
+router.get("/findOne",findOne)
 
 
 module.exports = router

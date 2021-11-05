@@ -38,24 +38,24 @@ const update = async ctx => {
             _id: draft._id
         },
         draft.data
-    ).then(res=>{
-        ctx.body={
-            code:200,
-            msg:"草稿修改成功"
+    ).then(res => {
+        ctx.body = {
+            code: 200,
+            msg: "草稿修改成功"
         }
-    }).catch(err=>{
-        ctx.body={
-            code:500,
-            msg:"草稿修改出现异常"
+    }).catch(err => {
+        ctx.body = {
+            code: 500,
+            msg: "草稿修改出现异常"
         }
     })
 }
 
 
 // 删除草稿
-const del=async ctx=>{
-    let _id=ctx.request.body
-    await Draft.findOneAndDelete({_id}).then(res => {
+const del = async ctx => {
+    let _id = ctx.request.body
+    await Draft.findOneAndDelete({ _id }).then(res => {
         if (res) {
             ctx.body = {
                 code: 200,
@@ -77,20 +77,60 @@ const del=async ctx=>{
 }
 
 
-// 查询草稿
-const find=async ctx=>{
-    let {authorId}=ctx.query
-    await Draft.find({authorId},"title createTime author authorId coverType coverImg").then(res=>{
-        // 
-        ctx.body={
-            code:200,
-            msg:"查询草稿成功",
-            res
+// 查询草稿 
+const find = async ctx => {
+    let { authorId, t1, t2 } = ctx.query
+    if (!(t1 && t2)) {
+        await Draft.find({ authorId }, "title createTime author authorId coverType coverImg").sort({ 'createTime': -1 }).then(res => {
+            // 
+            ctx.body = {
+                code: 200,
+                msg: "查询草稿成功",
+                res
+            }
+        }).catch(err => {
+            ctx.body = {
+                code: 500,
+                msg: "查询草稿出现异常",
+                err
+            }
+        })
+    } else {
+        await Draft.find({ authorId }, {content:0}).sort({ 'createTime': -1 }).gt('createTime', t1).lt('createTime', t2).then(res => {
+            // 
+            ctx.body = {
+                code: 200,
+                msg: "查询草稿成功",
+                res
+            }
+        }).catch(err => {
+            ctx.body = {
+                code: 500,
+                msg: "查询草稿出现异常",
+                err
+            }
+        })
+    }
+
+
+
+
+
+}
+
+// 查询单个草稿
+const findOne = async ctx => {
+    let { id } = ctx.query
+    await Draft.findOne({ _id: id }).then(res => {
+        ctx.body = {
+            code: 200,
+            msg: "查询草稿成功",
+            data: res
         }
-    }).catch(err=>{
-        ctx.body={
-            code:500,
-            msg:"查询草稿出现异常",
+    }).catch(err => {
+        ctx.body = {
+            code: 500,
+            msg: "查询草稿出现异常",
             err
         }
     })
@@ -100,5 +140,6 @@ module.exports = {
     add,
     update,
     del,
-    find
+    find,
+    findOne
 }

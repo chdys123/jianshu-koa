@@ -4,7 +4,8 @@ const {
     find,
     findOne,
     update,
-    del
+    del,
+    setStatu
 } = require("../controller/article")
 
 const router = require('koa-router')()
@@ -28,6 +29,9 @@ router.post("/update",update)
 
 // 删除文章
 router.post("/del",del)
+
+// 设置文章状态
+router.post("/setStatu",setStatu)
 
 
 

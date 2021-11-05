@@ -2,9 +2,9 @@ const Article = require("../models/article")
 
 // 添加文章
 const add = async ctx => {
-    
-    let article = ctx.request.body
 
+    let article = ctx.request.body
+    delete article.id
 
     await Article.create(article).then(res => {
         if (res) {
@@ -96,23 +96,57 @@ const findAll = async ctx => {
 
 }
 
-// 按条件查询文章
-const find=async ctx=>{
-    let {authorId} = ctx.query
-    console.log(authorId)
-    await Article.find({authorId}).then(res=>{
-        ctx.body={
-            code:200,
-            msg:"查询成功",
-            res
-        }
-    }).catch(err=>{
-        ctx.body={
-            code:500,
-            msg:"查询时出现异常",
-            err
-        }
-    })
+// 按条件查询文章 
+const find = async ctx => {
+    // console.log(ctx.query)
+    let { authorId, t1, t2, key, statu } = ctx.query
+    if (!(t1 && t2)) {
+        t1 = 0
+        t2 = Date.now()
+    }
+    if (!key) {
+        key = ''
+    }
+    let reg = new RegExp(key, 'i')
+    if (statu) {
+        await Article.find({ authorId, statu }, { content: 0 }).or([
+            { 'title': { $regex: reg } },
+            { 'content': { $regex: reg } }
+        ]).sort({ "createTime": -1 }).gt('createTime', t1).lt('createTime', t2).then(res => {
+            ctx.body = {
+                code: 200,
+                msg: "查询成功",
+                res
+            }
+        }).catch(err => {
+            ctx.body = {
+                code: 500,
+                msg: "查询时出现异常",
+                err
+            }
+        })
+
+    } else {
+        await Article.find({ authorId }, { content: 0 }).or([
+            { 'title': { $regex: reg } },
+            { 'content': { $regex: reg } }
+        ]).sort({ "createTime": -1 }).gt('createTime', t1).lt('createTime', t2).then(res => {
+            ctx.body = {
+                code: 200,
+                msg: "查询成功",
+                res
+            }
+        }).catch(err => {
+            ctx.body = {
+                code: 500,
+                msg: "查询时出现异常",
+                err
+            }
+        })
+
+    }
+
+
 }
 
 
@@ -121,12 +155,12 @@ const find=async ctx=>{
 const findOne = async ctx => {
     let { id } = ctx.query
     let isRead = false
-    await Article.findOne({ id }).then(res => {
+    await Article.findOne({ _id: id }).then(res => {
         if (res) {
             isRead = true
             ctx.body = {
                 code: 200, msg: "查询成功",
-                res
+                data: res
             }
         } else {
             ctx.body = {
@@ -157,14 +191,10 @@ const update = async ctx => {
     let article = ctx.request.body
     await Article.updateOne(
         {
-            id: article.id,
+            _id: article.id,
             authorId: article.authorId
         },
-        {
-            title: article.title,
-            stemfrom: article.stemfrom,
-            content: article.content
-        }).then(res => {
+        article).then(res => {
             if (res.modifiedCount > 0) {
                 ctx.body = {
                     code: 200,
@@ -191,7 +221,7 @@ const update = async ctx => {
 // 删除文章
 const del = async ctx => {
     let { id } = ctx.request.body
-    await Article.findOneAndDelete({ id: id }).then(res => {
+    await Article.findOneAndDelete({ _id: id }).then(res => {
         if (res) {
             ctx.body = {
                 code: 200,
@@ -213,11 +243,42 @@ const del = async ctx => {
 
 }
 
+// 设置文章状态
+const setStatu=async ctx=>{
+    let {id,statu}=ctx.request.body
+    await Article.updateOne({
+        _id:id
+    },{
+        statu:statu
+    }).then(res => {
+        if (res.modifiedCount > 0) {
+            ctx.body = {
+                code: 200,
+                msg: "文章修改成功",
+                res
+            }
+        } else {
+            ctx.body = {
+                code: 300,
+                msg: "文章修改失败",
+                res
+            }
+        }
+    }).catch(err => {
+        ctx.body = {
+            code: 500,
+            msg: "文章修改时出现异常",
+            err
+        }
+    })
+}
+
 module.exports = {
     add,
     findAll,
     find,
     findOne,
     update,
-    del
+    del,
+    setStatu
 }
