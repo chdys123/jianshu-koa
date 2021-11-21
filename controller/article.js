@@ -1,5 +1,6 @@
 const Article = require("../models/article")
 
+
 // 添加文章
 const add = async ctx => {
 
@@ -29,76 +30,75 @@ const add = async ctx => {
 }
 
 // 查询所有文章分页
-const findAll = async ctx => {
-    let { page, authorId, pageSize } = ctx.query
+// const findAll = async ctx => {
+//     let { page, authorId, pageSize } = ctx.query
 
-    // 判断页码
-    if (!page || isNaN(Number(page))) {
-        page = 1
-    } else {
-        page = Number(page)
-    }
+//     // 判断页码
+//     if (!page || isNaN(Number(page))) {
+//         page = 1
+//     } else {
+//         page = Number(page)
+//     }
 
-    // 每页条数
-    if (!pageSize || isNaN(Number(pageSize))) {
-        pageSize = 10
-    } else {
-        pageSize = Number(pageSize)
-    }
-
-
-    // 计算总页数
-    let count = 0
-    await Article.find({ authorId }).count().then(res => {
-        count = res
-    })
-    let totolPage = 0
-    if (count > 0) {
-        totolPage = Math.ceil(count / pageSize)
-    }
-
-    // 判断当前页码的范围
-    if (totolPage > 0 && page > totolPage) {
-        page = totolPage
-    } else if (page < 1) {
-        page = 1
-    }
-
-    // 计算起始位置
-    let start = (page - 1) * pageSize
-
-    await Article.find({ authorId }).skip(start).limit(pageSize).then(res => {
-        if (res && res.length > 0) {
-            ctx.body = {
-                code: 200,
-                msg: "文章查询成功",
-                res,
-                page,
-                pageSize,
-                count
-            }
-        } else {
-            ctx.body = {
-                code: 300,
-                msg: "没有查询到文章",
-                res
-            }
-        }
-
-    }).catch(err => {
-        ctx.body = {
-            code: 500,
-            err,
-            msg: "文章查询时出现异常"
-        }
-    })
+//     // 每页条数
+//     if (!pageSize || isNaN(Number(pageSize))) {
+//         pageSize = 10
+//     } else {
+//         pageSize = Number(pageSize)
+//     }
 
 
-}
+//     // 计算总页数
+//     let count = 0
+//     await Article.find({ authorId }).count().then(res => {
+//         count = res
+//     })
+//     let totolPage = 0
+//     if (count > 0) {
+//         totolPage = Math.ceil(count / pageSize)
+//     }
+
+//     // 判断当前页码的范围
+//     if (totolPage > 0 && page > totolPage) {
+//         page = totolPage
+//     } else if (page < 1) {
+//         page = 1
+//     }
+
+//     // 计算起始位置
+//     let start = (page - 1) * pageSize
+
+//     await Article.find({ authorId }).skip(start).limit(pageSize).then(res => {
+//         if (res && res.length > 0) {
+//             ctx.body = {
+//                 code: 200,
+//                 msg: "文章查询成功",
+//                 res,
+//                 page,
+//                 pageSize,
+//                 count
+//             }
+//         } else {
+//             ctx.body = {
+//                 code: 300,
+//                 msg: "没有查询到文章",
+//                 res
+//             }
+//         }
+
+//     }).catch(err => {
+//         ctx.body = {
+//             code: 500,
+//             err,
+//             msg: "文章查询时出现异常"
+//         }
+//     })
+
+
+// }
 
 // 按条件查询文章 
 const find = async ctx => {
-    // console.log(ctx.query)
     let { authorId, t1, t2, key, statu } = ctx.query
     if (!(t1 && t2)) {
         t1 = 0
@@ -151,6 +151,8 @@ const find = async ctx => {
 
 
 
+
+
 // 查询单个文章
 const findOne = async ctx => {
     let { id } = ctx.query
@@ -180,7 +182,7 @@ const findOne = async ctx => {
 
     if (isRead) {
         // 阅读数自增
-        await Article.updateOne({ id }, { $inc: { read: 1 } })
+        await Article.updateOne({ _id:id }, { $inc: { read: 1 } })
     }
 
 
@@ -273,6 +275,54 @@ const setStatu=async ctx=>{
     })
 }
 
+// 用户最近的最热文章
+const userHotArticle=async ctx=>{
+    let {id} =ctx.query
+    await Article.find({authorId:id,statu:'已发布'},{ content: 0 }).sort({ "read": -1 }).skip(0).limit(5).then(res=>{
+        ctx.body={
+            code:200,
+            msg:"查询成功",
+            res
+        }
+    }).catch(err=>{
+        ctx.body={
+            code:500,
+            msg:"查询出现异常",
+            err
+        }
+    })
+}
+
+// 
+
+
+// 推荐文章 先直接查询全部算了
+// 文章分类
+// 关键词搜索文章
+
+const findAll=async ctx=>{
+    // 不需要登录
+
+    await Article.find({statu:'已发布'},{ content: 0 }).then(res=>{
+        ctx.body={
+            code:200,
+            data:res
+        }
+
+    }).catch(err=>{
+        ctx.body={
+            code:500,
+            data:err
+        }
+    })
+
+}
+
+
+
+
+
+
 module.exports = {
     add,
     findAll,
@@ -280,5 +330,6 @@ module.exports = {
     findOne,
     update,
     del,
-    setStatu
+    setStatu,
+    userHotArticle
 }

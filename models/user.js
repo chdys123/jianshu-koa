@@ -28,7 +28,32 @@ const userSchema = new mongoose.Schema({
     email:{
         type:String,
         default:''
-    }
+    },
+    // 关注的人的id
+    careId:{
+        type:Array,
+        default:[]
+    },
+    // 粉丝
+    fans:Array,
+    // 收藏的文章id
+    collectId:{
+        type:Array,
+        default:[]
+    },
+
+    // 点赞的文章id
+    starId:{
+        type:Array,
+        default:[]
+    },
+
+
+
+
+
+
+
 
 })
 const User=mongoose.model("users",userSchema)

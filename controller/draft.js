@@ -32,7 +32,6 @@ const add = async ctx => {
 // 修改草稿
 const update = async ctx => {
     let draft = ctx.request.body
-    console.log(draft)
     await Draft.updateOne(
         {
             _id: draft._id

@@ -5,7 +5,8 @@ const {
     findOne,
     update,
     del,
-    setStatu
+    setStatu,
+    userHotArticle
 } = require("../controller/article")
 
 const router = require('koa-router')()
@@ -15,7 +16,7 @@ router.prefix("/article")
 // 发布文章
 router.post("/add", add)
 
-// 查询所有文章 分页
+// 查询所有文章 
 router.get("/findAll", findAll)
 
 // 查询文章 按条件
@@ -32,6 +33,9 @@ router.post("/del",del)
 
 // 设置文章状态
 router.post("/setStatu",setStatu)
+
+// 用户近期最热文章
+router.get("/userHotArticle",userHotArticle)
 
 
 

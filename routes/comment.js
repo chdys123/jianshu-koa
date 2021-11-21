@@ -1,5 +1,6 @@
 let {
     add,
+    update,
     findById,
     findByAuthor
 } =require("../controller/comment")
@@ -11,6 +12,9 @@ router.prefix("/comment")
 
 // 添加评论
 router.post("/add",add)
+
+// 修改评论
+router.post("/update",update)
 
 // 前台查询评论
 router.get("/web/find",findById)
