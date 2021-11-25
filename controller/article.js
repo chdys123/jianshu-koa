@@ -182,7 +182,7 @@ const findOne = async ctx => {
 
     if (isRead) {
         // 阅读数自增
-        await Article.updateOne({ _id:id }, { $inc: { read: 1 } })
+        await Article.updateOne({ _id: id }, { $inc: { read: 1 } })
     }
 
 
@@ -246,12 +246,12 @@ const del = async ctx => {
 }
 
 // 设置文章状态
-const setStatu=async ctx=>{
-    let {id,statu}=ctx.request.body
+const setStatu = async ctx => {
+    let { id, statu } = ctx.request.body
     await Article.updateOne({
-        _id:id
-    },{
-        statu:statu
+        _id: id
+    }, {
+        statu: statu
     }).then(res => {
         if (res.modifiedCount > 0) {
             ctx.body = {
@@ -276,18 +276,18 @@ const setStatu=async ctx=>{
 }
 
 // 用户最近的最热文章
-const userHotArticle=async ctx=>{
-    let {id} =ctx.query
-    await Article.find({authorId:id,statu:'已发布'},{ content: 0 }).sort({ "read": -1 }).skip(0).limit(5).then(res=>{
-        ctx.body={
-            code:200,
-            msg:"查询成功",
+const userHotArticle = async ctx => {
+    let { id } = ctx.query
+    await Article.find({ authorId: id, statu: '已发布' }, { content: 0 }).sort({ "read": -1 }).skip(0).limit(5).then(res => {
+        ctx.body = {
+            code: 200,
+            msg: "查询成功",
             res
         }
-    }).catch(err=>{
-        ctx.body={
-            code:500,
-            msg:"查询出现异常",
+    }).catch(err => {
+        ctx.body = {
+            code: 500,
+            msg: "查询出现异常",
             err
         }
     })
@@ -296,27 +296,63 @@ const userHotArticle=async ctx=>{
 // 
 
 
-// 推荐文章 先直接查询全部算了
+// 推荐文章 
 // 文章分类
 // 关键词搜索文章
-
-const findAll=async ctx=>{
+// 分页查询 每次查询30条
+const findAll = async ctx => {
     // 不需要登录
+    // 获取每次查询的开始位置
+    let {start}=ctx.query
 
-    await Article.find({statu:'已发布'},{ content: 0 }).then(res=>{
+    // 计算总页数
+    let count = 0
+    await Article.find({ statu: '已发布' }, { content: 0 }).count().then(res => {
+        count = res
+    })
+    if(count<start){
         ctx.body={
-            code:200,
-            data:res
+            code:300,
+            msg:"没有更多了",
+            data:[]
+        }
+        return
+    }
+    
+
+    await Article.find({ statu: '已发布' }, { content: 0 }).skip(start).limit(30).then(res => {
+        ctx.body = {
+            code: 200,
+            data: res
         }
 
-    }).catch(err=>{
-        ctx.body={
-            code:500,
-            data:err
+    }).catch(err => {
+        ctx.body = {
+            code: 500,
+            data: err
         }
     })
 
 }
+
+// 头条热榜
+const hotArticle = async ctx => {
+    // 查询10条阅读量最高的文章
+    await Article.find({ statu: '已发布' }, { content: 0 }).sort({ "read": -1 }).skip(0).limit(10).then(res => {
+        ctx.body={
+            code:200,
+            msg:"查询成功",
+            data:res
+        }
+    }).catch(err=>{
+        ctx.body={
+            code:500,
+            msg:"查询出现异常",
+            data:err
+        }
+    })
+}
+
 
 
 
@@ -331,5 +367,6 @@ module.exports = {
     update,
     del,
     setStatu,
-    userHotArticle
+    userHotArticle,
+    hotArticle
 }

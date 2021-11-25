@@ -213,6 +213,7 @@ const getMsg = async ctx => {
         }
     }).catch(err => {
         ctx.body = {
+            code:500,
             data: err,
             msg: "查询时出现异常",
         }

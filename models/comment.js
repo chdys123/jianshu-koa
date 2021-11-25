@@ -54,7 +54,6 @@ const commentSchema = new mongoose.Schema({
             // 被回复的内容
             BcContent: String
         }]
-
 })
 
 

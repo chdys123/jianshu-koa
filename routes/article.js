@@ -6,7 +6,8 @@ const {
     update,
     del,
     setStatu,
-    userHotArticle
+    userHotArticle,
+    hotArticle
 } = require("../controller/article")
 
 const router = require('koa-router')()
@@ -36,6 +37,9 @@ router.post("/setStatu",setStatu)
 
 // 用户近期最热文章
 router.get("/userHotArticle",userHotArticle)
+
+// 头条热榜
+router.get("/hotArticle",hotArticle)
 
 
 
