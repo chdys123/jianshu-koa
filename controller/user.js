@@ -54,9 +54,9 @@ const reg = async (ctx) => {
         }
         return
     }
-    let avatar="http://localhost:3000/images/avatar.png"
+    let avatar = "http://localhost:3000/images/avatar.png"
 
-    await User.create({ username, pwd,avatar }).then(res => {
+    await User.create({ username, pwd, avatar }).then(res => {
         if (res) {
             ctx.body = {
                 code: 200,
@@ -214,7 +214,7 @@ const getMsg = async ctx => {
         }
     }).catch(err => {
         ctx.body = {
-            code:500,
+            code: 500,
             data: err,
             msg: "查询时出现异常",
         }
@@ -461,7 +461,12 @@ const care = async ctx => {
             msg: "出现异常"
         }
     })
-    await User.updateOne({ _id: authorId }, { fans: arr2 }).then(res => { }).catch(err => { })
+    // {  }
+    if (cate == 1) {
+        await User.updateOne({ _id: authorId }, { fans: arr2, $inc: { fansCount: 1 } }).then(res => { }).catch(err => { })
+    } else {
+        await User.updateOne({ _id: authorId }, { fans: arr2, $inc: { fansCount: -1 } }).then(res => { }).catch(err => { })
+    }
 
 }
 

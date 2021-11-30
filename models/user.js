@@ -36,6 +36,11 @@ const userSchema = new mongoose.Schema({
     },
     // 粉丝
     fans:Array,
+    // 粉丝数量
+    fansCount:{
+        type:Number,
+        default:0
+    },
     // 收藏的文章id
     collectId:{
         type:Array,

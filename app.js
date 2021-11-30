@@ -17,6 +17,7 @@ const upload = require("./routes/upload")
 const article = require("./routes/article")
 const comment = require("./routes/comment")
 const draft = require("./routes/draft")
+const serach =require("./routes/serach")
 
 
 // error handler
@@ -40,7 +41,7 @@ app.use(views(__dirname + '/views', {
 app.use(koajwt({
   secret:"jianshu-server-jwt"
 }).unless({
-  path:[/^\/login/,/^\/reg/,/^\/article\/findAll/,/^\/article\/findOne/,/^\/article\/hotArticle/]
+  path:[/^\/login/,/^\/reg/,/^\/article\/findAll/,/^\/article\/findOne/,/^\/article\/hotArticle/,/^\/serach/]
 }))
 
 
@@ -58,6 +59,7 @@ app.use(upload.routes(), upload.allowedMethods())
 app.use(article.routes(), article.allowedMethods())
 app.use(comment.routes(), comment.allowedMethods())
 app.use(draft.routes(), draft.allowedMethods())
+app.use(serach.routes(), serach.allowedMethods())
 
 
 // error-handling
