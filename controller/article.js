@@ -302,15 +302,15 @@ const userHotArticle = async ctx => {
 // 分页查询 每次查询30条
 const findAll = async ctx => {
     // 不需要登录
-    // 获取每次查询的开始位置
-    let {start}=ctx.query
+    // 获取每次查询的开始位置和文章分类
+    let {start,Aclass}=ctx.query
 
     // 计算总页数
     let count = 0
-    await Article.find({ statu: '已发布' }, { content: 0 }).count().then(res => {
+    await Article.find({ statu: '已发布' ,class:Aclass}, { content: 0 }).count().then(res => {
         count = res
     })
-    if(count<start){
+    if(count<=start){
         ctx.body={
             code:300,
             msg:"没有更多了",
@@ -318,9 +318,11 @@ const findAll = async ctx => {
         }
         return
     }
-    
+    console.log("count:",count)
+    console.log("start:",start)
 
-    await Article.find({ statu: '已发布' }, { content: 0 }).skip(start).limit(30).then(res => {
+    
+    await Article.find({ statu: '已发布' ,class:Aclass}, { content: 0 }).skip(start).limit(30).then(res => {
         ctx.body = {
             code: 200,
             data: res
@@ -352,9 +354,6 @@ const hotArticle = async ctx => {
         }
     })
 }
-
-
-
 
 
 

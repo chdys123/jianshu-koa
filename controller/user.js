@@ -49,13 +49,14 @@ const reg = async (ctx) => {
 
     if (isDouble) {
         ctx.body = {
-            code: 300,
+            code: 400,
             msg: "用户名已经存在"
         }
         return
     }
+    let avatar="http://localhost:3000/images/avatar.png"
 
-    await User.create({ username, pwd }).then(res => {
+    await User.create({ username, pwd,avatar }).then(res => {
         if (res) {
             ctx.body = {
                 code: 200,

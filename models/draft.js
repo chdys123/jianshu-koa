@@ -16,6 +16,8 @@ const draftSchema = new mongoose.Schema({
     coverType:String,
     // 封面图片
     coverImg:Array,
+    // 文章类别
+    class:String
    
 })
 const Draft=mongoose.model("draft",draftSchema)

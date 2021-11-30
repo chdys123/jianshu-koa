@@ -34,6 +34,8 @@ const articleSchema = new mongoose.Schema({
     coverImg:Array,
     // 文章状态  审核中  未通过 已发布 仅我可见
     statu:String,
+    // 文章的分类
+    class:String
   
 })
 const Article=mongoose.model("articles",articleSchema)

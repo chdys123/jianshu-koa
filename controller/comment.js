@@ -68,10 +68,13 @@ const update=async ctx=>{
 // 前台查询评论  通过文章id进行查询  需要分页
 const findById = async ctx => {
     let { start, id, size } = ctx.query
+    let count=0
+
+    await Comment.find({articleId:id}).count().then(res=>{
+        count=res
+    })
  
     await Comment.find({ articleId: id }).sort({ "createTime": -1 }).skip(Number(start)).limit(Number(size)).then(res => {
-        
-        
         if (res && res.length > 0) {
             let data=res
             data.forEach(item=>{
@@ -83,6 +86,7 @@ const findById = async ctx => {
             ctx.body = {
                 code: 200,
                 msg: "评论查询成功",
+                count,
                 data: data,
                 
             }
