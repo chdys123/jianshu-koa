@@ -45,5 +45,12 @@ router.get("/user/isCare",userCtl.isCare)
 // 关注或者取消关注
 router.get("/user/care",userCtl.care)
 
+// 获取作者的粉丝信息 
+router.get("/user/getFans",userCtl.getFans)
+
+// 获取作者的关注列表信息
+router.get("/user/getCare",userCtl.getCare)
+
+
 module.exports = router
 

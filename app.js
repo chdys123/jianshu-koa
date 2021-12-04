@@ -5,9 +5,9 @@ const json = require('koa-json')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
-const MongoConnect=require('./db/index')
-const cors=require("koa2-cors")
-const koajwt=require("koa-jwt")
+const MongoConnect = require('./db/index')
+const cors = require("koa2-cors")
+const koajwt = require("koa-jwt")
 
 // 连接数据库
 MongoConnect()
@@ -17,7 +17,7 @@ const upload = require("./routes/upload")
 const article = require("./routes/article")
 const comment = require("./routes/comment")
 const draft = require("./routes/draft")
-const serach =require("./routes/serach")
+const serach = require("./routes/serach")
 
 
 // error handler
@@ -25,7 +25,7 @@ onerror(app)
 
 // middlewares
 app.use(bodyparser({
-  enableTypes:['json', 'form', 'text']
+  enableTypes: ['json', 'form', 'text']
 }))
 app.use(json())
 app.use(logger())
@@ -39,9 +39,9 @@ app.use(views(__dirname + '/views', {
 
 
 app.use(koajwt({
-  secret:"jianshu-server-jwt"
+  secret: "jianshu-server-jwt"
 }).unless({
-  path:[/^\/login/,/^\/reg/,/^\/article\/findAll/,/^\/article\/findOne/,/^\/article\/hotArticle/,/^\/serach/]
+  path: [/^\/login/, /^\/reg/, /^\/article\/findAll/, /^\/article\/findOne/, /^\/article\/hotArticle/, /^\/serach/,/^\/user\/getFans/]
 }))
 
 

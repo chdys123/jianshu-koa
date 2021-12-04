@@ -204,9 +204,11 @@ const getMsg = async ctx => {
             return result + Number(item.star)
         }, 0)
         let a = { ...data._doc }
+        // a.fans = a.fans.length
+        // a.careId = a.careId.length
+        a.star = star
         a.fans = a.fans.length
         a.careId = a.careId.length
-        a.star = star
         ctx.body = {
             data: a,
             code: 200,
@@ -418,9 +420,12 @@ const isCare = async ctx => {
     }
 }
 
+
+
 // 用户关注或者取消关注某个作者
 const care = async ctx => {
     let { userId, authorId, cate } = ctx.query
+
     let arr = [], arr2 = []
     // 先查出用户的关注的人 然后修改关注id之后  修改数据库
     await User.findOne({ _id: userId }, 'careId').then(res => {
@@ -434,13 +439,16 @@ const care = async ctx => {
     if (cate == 1) {
         // 关注
         arr.push(authorId)
-        arr2.push(userId)
+        arr2.push({
+            id: userId,
+            time: Date.now()
+        })
         data = true
 
     } else {
         // 取消关注
         let index = arr.findIndex(item => item == authorId)
-        let index2 = arr2.findIndex(item => item == userId)
+        let index2 = arr2.findIndex(item => item.id == userId)
         arr.splice(index, 1)
         arr2.splice(index2, 1)
         data = false
@@ -453,7 +461,6 @@ const care = async ctx => {
             msg: "成功",
             data
         }
-
     }).catch(err => {
         flag = false
         ctx.body = {
@@ -461,14 +468,109 @@ const care = async ctx => {
             msg: "出现异常"
         }
     })
-    // {  }
-    if (cate == 1) {
-        await User.updateOne({ _id: authorId }, { fans: arr2, $inc: { fansCount: 1 } }).then(res => { }).catch(err => { })
-    } else {
-        await User.updateOne({ _id: authorId }, { fans: arr2, $inc: { fansCount: -1 } }).then(res => { }).catch(err => { })
+    if (flag) {
+        if (cate == 1) {
+            await User.updateOne({ _id: authorId }, { fans: arr2, $inc: { fansCount: 1 } }).then(res => { }).catch(err => { })
+        } else {
+            await User.updateOne({ _id: authorId }, { fans: arr2, $inc: { fansCount: -1 } }).then(res => { }).catch(err => { })
+        }
     }
 
 }
+
+
+// 查询用户的粉丝列表 可能需要分页 前端用懒加载
+const getFans = async ctx => {
+    let { userId, authorId } = ctx.query
+    let fans = []
+    await User.findOne({ _id: authorId }, "fans").then(res => {
+        fans = res.fans
+
+    }).catch(err => {
+        ctx.body = {
+            code: 500,
+            msg: "查询出现异常",
+            data: err
+        }
+        return
+    })
+    // 挨个查询这些粉丝的姓名 头像 服了 我靠 咋就不能populate呢
+    let result = []
+    for (let i = 0; i < fans.length; i++) {
+        await User.findOne({ _id: fans[i].id }, "username avatar fansCount").then(res => {
+            let obj = {
+                id: fans[i].id,
+                username: res.username,
+                avatar: res.avatar,
+                fansCount: res.fansCount
+            }
+            result.push(obj)
+        })
+    }
+    await User.findOne({ _id: userId }, "careId").then(res => {
+        result.forEach((item, index) => {
+            if (res.careId.includes(item.id)) {
+                result[index].isCare = true
+            } else {
+                result[index].isCare = false
+            }
+        })
+    })
+    ctx.body = {
+        code: 200,
+        msg: "查询成功",
+        data: result,
+    }
+}
+
+
+
+// 查询用户的关注列表 可能需要分页 前端用懒加载
+const getCare = async ctx => {
+    let { userId, authorId } = ctx.query
+    let careId = []
+    await User.findOne({ _id: authorId }, "careId").then(res => {
+        careId = res.careId
+
+    }).catch(err => {
+        ctx.body = {
+            code: 500,
+            msg: "查询出现异常",
+            data: err
+        }
+        return
+    })
+
+    // 挨个查询这些关注的姓名 头像 服了 我靠 咋就不能populate呢
+    let result = []
+    for (let i = 0; i < careId.length; i++) {
+        await User.findOne({ _id: careId[i] }, "username avatar fansCount").then(res => {
+            let obj = {
+                id: careId[i],
+                username: res.username,
+                avatar: res.avatar,
+                fansCount: res.fansCount
+            }
+            result.push(obj)
+        })
+    }
+    await User.findOne({ _id: userId }, "careId").then(res => {
+        result.forEach((item, index) => {
+            if (res.careId.includes(item.id)) {
+                result[index].isCare = true
+            } else {
+                result[index].isCare = false
+            }
+        })
+    })
+    ctx.body = {
+        code: 200,
+        msg: "查询成功",
+        data: result,
+    }
+}
+
+
 
 module.exports = {
     login,
@@ -483,6 +585,8 @@ module.exports = {
     star,
     getCollect,
     isCare,
-    care
+    care,
+    getFans,
+    getCare
 
 }

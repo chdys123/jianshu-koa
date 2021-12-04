@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-
+var Schema = mongoose.Schema;
 
 
 // 系统用户模型对象
@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
         default:[]
     },
     // 粉丝
+    // fans:[{ type: Schema.Types.ObjectId, ref: 'User' }],
     fans:Array,
     // 粉丝数量
     fansCount:{
@@ -52,15 +53,7 @@ const userSchema = new mongoose.Schema({
         type:Array,
         default:[]
     },
-
-
-
-
-
-
-
-
 })
-const User=mongoose.model("users",userSchema)
+let User=mongoose.model("users",userSchema)
 
 module.exports=User
