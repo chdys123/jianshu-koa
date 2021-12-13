@@ -1,5 +1,7 @@
 const User = require("../models/user")
 const Article = require("../models/article")
+const Comment = require("../models/comment")
+const Draft=require("../models/draft")
 const jwt = require("jsonwebtoken")
 
 
@@ -150,8 +152,7 @@ const updatePwd = async ctx => {
 // 修改用户个人资料
 const updatePersonal = async ctx => {
     let user = ctx.request.body
-
-
+    let flag = false
     await User.updateOne(
         { _id: user._id },
         {
@@ -164,11 +165,8 @@ const updatePersonal = async ctx => {
         }
     ).then(res => {
         if (res.modifiedCount > 0) {
-            ctx.body = {
-                code: 200,
-                msg: "修改资料成功",
-                res
-            }
+            flag = true
+
         } else {
             ctx.body = {
                 code: 300,
@@ -183,6 +181,34 @@ const updatePersonal = async ctx => {
             err
         }
     })
+
+    if (flag) {
+        // 修改一级评论的头像 和姓名
+
+        await Comment.updateMany({ userId: user._id }, { username: user.username, avatar: user.avatar }).then(res => {
+            
+          
+        }).catch(err => {
+        })
+
+        // 修改文章的姓名
+        await Article.updateMany({ authorId: user._id }, { author: user.username }).then(res => {
+          
+        }).catch(err => {
+        })
+        // 修改草稿的姓名
+        await Draft.updateMany({ authorId: user._id }, { author: user.username }).then(res => {
+          
+        }).catch(err => {
+        })
+
+        ctx.body = {
+            code: 200,
+            msg: "修改资料成功",
+        }
+
+
+    }
 }
 
 // 获取用户信息 根据用户id
@@ -525,6 +551,8 @@ const getFans = async ctx => {
 
 
 
+
+
 // 查询用户的关注列表 可能需要分页 前端用懒加载
 const getCare = async ctx => {
     let { userId, authorId } = ctx.query
@@ -572,6 +600,85 @@ const getCare = async ctx => {
 
 
 
+
+
+// 根据用户 和 时间 获取今日粉丝变化数 和粉丝总数
+const getFansData = async ctx => {
+    let { userId, t1, t2 } = ctx.query
+    // 如果没有传时间 就是 返回今日变化数 和粉丝总数
+    if (!t1 && !t2) {
+        let date = new Date()
+        let year = date.getFullYear()
+        let month = date.getMonth()
+        let day = date.getDate()
+        let time = Date.parse(new Date(year, month, day, 0, 0, 0, 0))
+        await User.findOne({ _id: userId }, 'fans').then(res => {
+            let fansCount = res.fans.length
+            let fanszt = 0
+            res.fans.forEach(item => {
+                if (item.time <= time) {
+                    fanszt++
+                }
+            })
+            ctx.body = {
+                code: 200,
+                msg: "查询成功",
+                data: {
+                    data1: fansCount - fanszt,
+                    data2: fansCount
+                }
+            }
+        }).catch(err => {
+            ctx.body = {
+                code: 500,
+                msg: "查询时出现异常",
+                data: err
+            }
+        })
+        return
+    } else {
+        // 如果上传了时间范围
+        let result = []
+        let fans = []
+        await User.findOne({ _id: userId }).then(res => {
+            fans = res.fans
+        }).catch(err => {
+            ctx.body = {
+                code: 500,
+                msg: "查询时出现异常",
+                data: err
+            }
+        })
+
+        let len = (t2 - t1) / (1000 * 60 * 60 * 24) + 1
+
+        t2 = Number(t2) + 1000 * 60 * 60 * 24
+        for (let i = 0; i < len; i++) {
+            let a = 0
+            let b = 0
+            fans.forEach(item => {
+                // 总数
+                if (item.time < (t2 - i * 1000 * 60 * 60 * 24)) {
+                    a++
+                }
+                if (item.time < (t2 - (i + 1) * 1000 * 60 * 60 * 24)) {
+                    b++
+                }
+
+            })
+            result.push({ a: a, b: a - b })
+        }
+        ctx.body = {
+            code: 200,
+            msg: "查询成功",
+            data: result.reverse()
+        }
+    }
+}
+
+
+
+
 module.exports = {
     login,
     reg,
@@ -587,6 +694,7 @@ module.exports = {
     isCare,
     care,
     getFans,
-    getCare
+    getCare,
+    getFansData
 
 }

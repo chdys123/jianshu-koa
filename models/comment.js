@@ -44,7 +44,6 @@ const commentSchema = new mongoose.Schema({
             content: String,
             // 回复的时间
             createTime: String,
-
             // 被回复的人id
             BcId: String,
             // 被回复的人的姓名,

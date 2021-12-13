@@ -1,5 +1,6 @@
 const Comment = require("../models/comment")
 const Article = require("../models/article")
+const User = require("../models/user")
 
 // 添加评论
 const add = async ctx => {
@@ -35,26 +36,28 @@ const add = async ctx => {
 }
 
 // 修改评论 也就是 添加回复评论 点赞这种
-const update=async ctx=>{
+const update = async ctx => {
     // 取得哪一个评论要添加评论回复
-    let {aId,id,comment}=ctx.request.body
-    console.log(id,comment)
-    let flag=false
-    await Comment.updateOne({_id:id},{$push:{
-        forComment:comment
-    }}).then(res=>{
-        ctx.body={
-            code:200,
-            msg:"评论成功"
+    let { aId, id, comment } = ctx.request.body
+    console.log(id, comment)
+    let flag = false
+    await Comment.updateOne({ _id: id }, {
+        $push: {
+            forComment: comment
         }
-        flag=true
-     
-    }).catch(err=>{
-       ctx.body={
-        code:500,
-        msg:"评论出现异常"
-       }
-       flag=false
+    }).then(res => {
+        ctx.body = {
+            code: 200,
+            msg: "评论成功"
+        }
+        flag = true
+
+    }).catch(err => {
+        ctx.body = {
+            code: 500,
+            msg: "评论出现异常"
+        }
+        flag = false
     })
 
     // 然后文章评论数目加一
@@ -65,31 +68,26 @@ const update=async ctx=>{
 }
 
 
-// 前台查询评论  通过文章id进行查询  需要分页
+// 前台查询评论  通过文章id进行查询  需要分页  评论的回复需要 查询头像与姓名
 const findById = async ctx => {
     let { start, id, size } = ctx.query
-    let count=0
+    let count = 0
 
-    await Comment.find({articleId:id}).count().then(res=>{
-        count=res
+    await Comment.find({ articleId: id }).count().then(res => {
+        count = res
     })
- 
+
+    let data = null
     await Comment.find({ articleId: id }).sort({ "createTime": -1 }).skip(Number(start)).limit(Number(size)).then(res => {
         if (res && res.length > 0) {
-            let data=res
-            data.forEach(item=>{
-                item.forComment.sort((a,b)=>{
-                    return b.createTime-a.createTime
+            data = res
+            data.forEach(item => {
+                item.forComment.sort((a, b) => {
+                    return b.createTime - a.createTime
                 })
             })
 
-            ctx.body = {
-                code: 200,
-                msg: "评论查询成功",
-                count,
-                data: data,
-                
-            }
+
         } else {
             ctx.body = {
                 code: 300,
@@ -104,6 +102,32 @@ const findById = async ctx => {
             msg: "评论查询时出现异常"
         }
     })
+
+
+    // 再根据二级评论里面的id 修改头像与姓名
+    for (let i = 0; i < data.length; i++) {
+        for (let j = 0; j < data[i].forComment.length; j++) {
+            await User.findOne({ _id: data[i].forComment[j].userId }, "avatar username").then(res => {
+                data[i].forComment[j].username = res.username
+                data[i].forComment[j].avatar = res.avatar
+            }).catch(err => {
+
+            })
+
+            await User.findOne({ _id: data[i].forComment[j].BcId }, "username avatar").then(res => {
+                data[i].forComment[j].BcName = res.username
+                data[i].forComment[j].BcAvatar = res.avatar
+            }).catch(err => {
+
+            })
+        }
+    }
+    ctx.body = {
+        code: 200,
+        msg: "评论查询成功",
+        count,
+        data: data,
+    }
 }
 
 

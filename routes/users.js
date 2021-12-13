@@ -52,5 +52,9 @@ router.get("/user/getFans",userCtl.getFans)
 router.get("/user/getCare",userCtl.getCare)
 
 
+// 根据时间范围获取用户的粉丝变化数据
+router.get("/user/getFansData",userCtl.getFansData)
+
+
 module.exports = router
 
